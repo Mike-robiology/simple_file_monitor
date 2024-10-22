@@ -1,2 +1,0 @@
-Data loss summary - 0\n/data/mat21/test/test1.txt
-/data/mat21/test/test12.txt
