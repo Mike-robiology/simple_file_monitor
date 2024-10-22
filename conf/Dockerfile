@@ -1,6 +1,10 @@
 FROM ubuntu:latest
 
-RUN sudo apt-get update
-RUN sudo apt-get install sendmail
+RUN apt-get update
+RUN apt-get install -y sendmail
 
-COPY src .
+COPY . ./src
+
+#include(`/etc/mail/tls/starttls.m4')dnl <- add to /etc/mail/tls/starttls.m4
+# run sendmailconfig
+# restart sendmail

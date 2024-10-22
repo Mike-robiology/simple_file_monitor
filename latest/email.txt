@@ -1,0 +1,14 @@
+To: michael.thomas21@imperial.ac.uk
+From: michael.thomas21@imperial.ac.uk
+Subject: MAP_DATA_MONITOR - Monitor started
+
+----- Start of message ----- 
+
+Monitor started. 
+
+Files being monitored: 
+/data/mat21/test/
+/data/mat21/test5
+ 
+
+----- End of message -----

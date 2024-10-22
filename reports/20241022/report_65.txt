@@ -1,0 +1,41 @@
+Data loss report - Tue Oct 22 14:09:50 UTC 2024
+
+##### ----- /data/mat21/test/ ----- #####
+Missing files: 2
+---
+  File: /data/mat21/test/test2
+  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+Device: fc31h/64561d	Inode: 68440827    Links: 1
+Access: (0644/-rw-r--r--)  Uid: (1565465/   mat21)   Gid: ( 9999/emailonly)
+Access: 2024-10-22 14:09:41.664629385 +0000
+Modify: 2024-10-22 14:09:41.664629385 +0000
+Change: 2024-10-22 14:09:41.664629385 +0000
+ Birth: -
+
+   File: /data/mat21/test/test1
+  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+Device: fc31h/64561d	Inode: 68440826    Links: 1
+Access: (0644/-rw-r--r--)  Uid: (1565465/   mat21)   Gid: ( 9999/emailonly)
+Access: 2024-10-22 14:09:41.664629385 +0000
+Modify: 2024-10-22 14:09:41.664629385 +0000
+Change: 2024-10-22 14:09:41.664629385 +0000
+ Birth: - ##### ----- /data/mat21/test2/ ----- #####
+Missing files: 2
+---
+  File: /data/mat21/test2/test3
+  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+Device: fc31h/64561d	Inode: 68440829    Links: 1
+Access: (0644/-rw-r--r--)  Uid: (1565465/   mat21)   Gid: ( 9999/emailonly)
+Access: 2024-10-22 14:09:41.664629385 +0000
+Modify: 2024-10-22 14:09:41.664629385 +0000
+Change: 2024-10-22 14:09:41.664629385 +0000
+ Birth: -
+
+   File: /data/mat21/test2/test1
+  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+Device: fc31h/64561d	Inode: 68440828    Links: 1
+Access: (0644/-rw-r--r--)  Uid: (1565465/   mat21)   Gid: ( 9999/emailonly)
+Access: 2024-10-22 14:09:41.664629385 +0000
+Modify: 2024-10-22 14:09:41.664629385 +0000
+Change: 2024-10-22 14:09:41.664629385 +0000
+ Birth: -

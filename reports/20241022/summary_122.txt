@@ -1,0 +1,7 @@
+Data loss summary - Tue Oct 22 15:40:36 UTC 2024
+
+/data/mat21/test/test2
+/data/mat21/test/test1
+
+/data/mat21/test5/test2
+/data/mat21/test5/test1

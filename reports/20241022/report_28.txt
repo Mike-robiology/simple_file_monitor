@@ -1,0 +1,12 @@
+Data loss report - Tue Oct 22 10:54:52 UTC 2024
+
+##### ----- /data/mat21/test/ ----- #####\nMissing files: 1
+
+  File: /data/mat21/test/test.txt
+  Size: 0         	Blocks: 0          IO Block: 4096   regular empty file
+Device: fc31h/64561d	Inode: 68440749    Links: 1
+Access: (0644/-rw-r--r--)  Uid: (1565465/   mat21)   Gid: ( 9999/emailonly)
+Access: 2024-10-22 10:54:44.701001421 +0000
+Modify: 2024-10-22 10:54:44.701001421 +0000
+Change: 2024-10-22 10:54:44.701001421 +0000
+ Birth: -\n

@@ -1,3 +1,2 @@
-src/test/
-src/test2/
-src/directories.txt
+conf/directories.txt
+conf/monitor.config
