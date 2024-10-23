@@ -6,16 +6,18 @@
 # Functions:
 # - rearray: Copies an associative array.
 # - email: Sends an email using a specified template.
-# - alert: Triggers an email alert based on the type of alert (connection or data loss).
+# - alert: Triggers an email alert based on the type of alert (connection, startup, or data loss).
 # - generate_report: Generates a report of deleted files.
 # - check: Identifies deletions and generates reports and summaries.
 # - connection_test: Checks the connection status and sends an alert if inactive.
-# - write_state: Writes the current state of the monitored directoried to a file.
+# - write_state: Writes the current state of the monitored directories to a file.
 # - read_state: Loads monitored directories and previous state from a file.
-# - monitord: Directory monitor deamon, runs the monitoring process.
+# - startup: Initializes the monitoring process and triggers a startup alert.
+# - monitord: Directory monitor daemon, runs the monitoring process.
 
 # Main:
-# - Reads configuration from conf/monitor.config.
+# - Sets up logging.
+# - Reads configuration from conf/monitor.conf.
 # - Creates necessary directories.
 # - Starts the monitoring process.
 
@@ -28,6 +30,7 @@ rearray () {
 
 # send email
 email () {
+    printf "[%s] %s\n" "$(date)" "sending email"
     # select template
     if [[ "$report" == "TRUE" ]]; then
         template=src/email.template
@@ -50,18 +53,18 @@ email () {
 
     # send email
     ssmtp -t < latest/email.txt
-    #cat latest/email.txt >&2
 }
 
 # send email alert
 alert () {
+    printf "[%s] %s %s\n" "$(date)" "alert:" "$1"
     if [[ $1 == "connection" ]]; then
         subject="$connection_test_subject"
         body="----- Start of message ----- \n\n$connection_test_body$connection \n\n----- End of message -----"
     elif [[ $1 == "startup" ]]; then
         subject="$startup_subject"
         body="----- Start of message ----- \n\n$startup_body \n\nFiles being monitored: \n$dirs_str \n\n----- End of message -----"
-    else
+    elif [[ $1 == "data_loss" ]]; then
         subject="$data_loss_subject"
         body="----- Start of message ----- \n\n$data_loss_body \nFull report attached and available at: $copy_dir \nSee summary below. \n\nSUMMARY \n\n----- End of message -----\n" 
     fi
@@ -76,7 +79,7 @@ generate_report() {
         info_arr+=("$file_info\n\n")
     done
 
-    n_missing=$(echo "$removed" | wc -l)
+    
     header=$(echo -e "##### ----- $dir ----- #####\nMissing files: $n_missing")
     content=$(echo -e "${info_arr[*]}")
     printf "\n%s\n---\n%s" "$header" "$content" 
@@ -84,6 +87,7 @@ generate_report() {
 
 # identify deletions
 check () {
+    printf "[%s] %s\n" "$(date)" "checking for deletions"
     reports=()
     summaries=()
 
@@ -94,6 +98,8 @@ check () {
         removed=$(echo "$change" | grep "< File:" | sed "s/< File://g")
 
         if [[ "$removed" != "" ]]; then
+            n_missing=$(echo "$removed" | wc -l)
+            printf "[%s] %s %s %s\n%s\n" "$(date)" "$n_missing" "deletions detected in" "$dir" "$removed"
             reports[i]=$(generate_report)
             summaries[i]=$(echo -e "$removed")
             report=TRUE
@@ -101,33 +107,40 @@ check () {
     done
 
     if [[ "$report" == "TRUE" ]]; then
+        printf "[%s] %s\n" "$(date)" "compiling reports"
         mkdir -p reports/"$t_short"
         n_files=$(find reports/"$t_short"/report* -type f | wc -l)
         report_loc=reports/$t_short/report_$n_files.txt
         summary_loc=reports/$t_short/summary_$n_files.txt
 
-        printf "Data loss summary - %s\n" "$t_long" > "$summary_loc"
+        printf "Data loss summary - %s\n" "$(date)" > "$summary_loc"
         printf "\n%s\n" "${summaries[@]}" >> "$summary_loc"
-        printf "Data loss report - %s" "$t_long" > "$report_loc"
+        printf "Data loss report - %s" "$(date)" > "$report_loc"
         printf "\n%s\n" "${reports[@]}" >> "$report_loc"
 
 
         cat "$summary_loc" > latest/summary.txt
         cat "$report_loc" > latest/report.txt
 
-        alert
+        alert data_loss
         report=FALSE
+    else
+        printf "[%s] %s\n" "$(date)" "no deletions detected"
     fi
 }
 
 # handshake alert
 connection_test () {
+    printf "[%s] %s\n" "$(date)" "running connection test"
     if [ ! -d $handshake_dir ]; then
+        printf "[%s] %s\n" "$(date)" "connection inactive"
         connection="INACTIVE"
         alert connection
     else
+        printf "[%s] %s\n" "$(date)" "connection active"
         connection="ACTIVE"
         if [[ "$((count % $periodic_check))" == 0 ]]; then
+            printf "[%s] %s\n" "$(date)" "running periodic connection alert"
             alert connection
         fi
     fi
@@ -135,6 +148,7 @@ connection_test () {
 
 # write state to file
 write_state () {
+    printf "[%s] %s\n" "$(date)" "writing state to file"
     tmp=$(declare -p stat1)
     tmp=${tmp/-A/-Ag}
     echo "$tmp" > latest/state_file.txt
@@ -143,18 +157,21 @@ write_state () {
 
 # load monitored directories and previous state
 read_state () {
+    printf "[%s] %s\n" "$(date)" "checking for state file"
     readarray -t dirs < conf/directories.txt
     declare -gA stat2
     declare -gA chsum1
     declare -gA chsum2
 
     if [ -f latest/state_file.txt ]; then
+        printf "[%s] %s\n" "$(date)" "state file found. loading in previous file array"
         source latest/state_file.txt # load stat1
         for dir in "${dirs[@]}"; do
             status=${stat1[$dir]}
             chsum1[$dir]=$(echo "$status" | grep File | sed "s/ //g")
         done   
     else
+        printf "[%s] %s\n" "$(date)" "state file not found. initilising empty file array"
         declare -gA stat1
     fi
 }
@@ -163,21 +180,25 @@ read_state () {
 startup () {
     read_state
     dirs_str=$(printf '%s\\n' "${dirs[@]}")
+
+    printf '[%s] %s\n%b\n' "$(date)" 'startup' "$dirs_str"
     alert startup
+
     report=FALSE
     count=0
 }
 
 # monitor directories
 monitord () {
+    printf "[%s] %s\n" "$(date)" "monitor running"
     # initialise
     startup
 
     # monitor
     while true; do  
+        printf "\n[%s] %s %s\n" "$(date)" "monitor cycle:" "$count"
         count=$((count + 1))
         t_short=$(date +"%Y%m%d")
-        t_long=$(date)
 
         # check RDS connection
         connection_test
@@ -189,16 +210,19 @@ monitord () {
             chsum2[$dir]=$(echo "$status" | grep File | sed "s/ //g")
         done
 
+        # check for changes
         if [[ ${chsum1[*]} != "${chsum2[*]}" ]]; then
             if [[ ${#chsum1[@]} != 0 ]]; then
+                printf "[%s] %s\n" "$(date)" "change detected"
                 check
             fi
         fi
 
-        # copy reports if specified
+        # copy output if specified
         if [[ $copy_dir != "" ]]; then
             cp -ru reports "$copy_dir"
             cp -ru latest "$copy_dir"
+            cp -ru log "$copy_dir"
         fi
 
         # update state
@@ -213,6 +237,12 @@ monitord () {
 
 #### main ####
 
+# set up logging
+mkdir -p log
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>log/monitor.log 2>&1
+
 # read config
 source conf/monitor.conf
 
@@ -225,7 +255,7 @@ mkdir -p "$copy_dir"
 monitord
 
 # TO DO
-# final test
+# update header text
 # Dockerise
 # add docker secrets to github repository
 # email if docker container is not running/cannot restart
