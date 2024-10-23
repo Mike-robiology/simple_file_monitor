@@ -1,5 +1,5 @@
 # file_monitor
-Simple file monitoring daemon
+Simple file monitoring daemon compatible with Imperial college london's IT network.
 
 ## Features
 - **Directory Monitoring**: Monitors specified directories for file deletions.
@@ -12,20 +12,25 @@ Simple file monitoring daemon
 - **Configurable**: Configurable emails and run parameters through a parameters file; conf/monitor.conf. 
 
 ## Parameters
-| Parameter | Description |
-|-----------|-------------|
-| handshake_dir | Directory used to check connection |                           
-| check_interval | Time between checks |                                          
-| periodic_check | Number of checks before periodic connection check is triggered |
-| email_recipients | Email recipients |
-| email_source | Email source address (use college email) |
-| connection_test_subject | Subject line for connection test email |
-| connection_test_body | Body of connection test email |
-| data_loss_subject | Subject line for data loss email |
-| data_loss_body | Body of data loss email |
-| startup_subject | Subject line for start email |
-| startup_body | Body of start email |
+| Parameter | Description | Required? |
+|-----------|-------------|--|
+| handshake_dir | Directory used to check connection | ✅ |
+| check_interval | Time between checks | ✅ |
+| periodic_check | Number of checks before periodic connection check is triggered | ✅ |  
+| email_recipients | Email recipients | ✅ |  
+| email_source | Email source address (use college email) | ✅ |  
+| copy_dir | Directory to copy report/summary/log files to | ❌ |
+| monitor_file | File containing directories to monitor | ✅ |  
+| connection_test_subject | Subject line for connection test email | ❌ |
+| connection_test_body | Body of connection test email | ❌ |
+| data_loss_subject | Subject line for data loss email | ❌ |
+| data_loss_body | Body of data loss email | ❌ |
+| startup_subject | Subject line for start email | ❌ |
+| startup_body | Body of start email | ❌ |
 
 ## Dockerisation
+
+## Dependencies
+- `ssmtp` for sending emails.
 
 ## Known issues:

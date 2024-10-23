@@ -21,6 +21,8 @@
 # - Creates necessary directories.
 # - Starts the monitoring process.
 
+#### functions ####
+
 # copy associative array
 rearray () {
     tmp=$(declare -p "$1")
@@ -158,7 +160,7 @@ write_state () {
 # load monitored directories and previous state
 read_state () {
     printf "[%s] %s\n" "$(date)" "checking for state file"
-    readarray -t dirs < conf/directories.txt
+    readarray -t dirs < "$monitor_file"
     declare -gA stat2
     declare -gA chsum1
     declare -gA chsum2
@@ -234,6 +236,13 @@ monitord () {
     done
 }
 
+parameter_check () {
+    # check required parameters are present in conf/monitor.conf
+    if [[ -z "$email_recipients" || -z "$email_source" || -z "$monitor_file" || -z "$handshake_dir" || -z "$check_interval" || -z "$periodic_check" ]]; then
+        printf "[%s] %s\n" "$(date)" "Missing required parameters in conf/monitor.conf. Check README. Exiting."
+        exit 1
+    fi
+}
 
 #### main ####
 
@@ -243,7 +252,11 @@ exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>log/monitor.log 2>&1
 
-# read config
+# check config exists and read config
+if [ ! -f conf/monitor.conf ]; then
+    printf "[%s] %s\n" "$(date)" "Configuration file not found. Exiting."
+    exit 1
+fi
 source conf/monitor.conf
 
 # create directories
@@ -251,11 +264,13 @@ mkdir -p reports
 mkdir -p latest
 mkdir -p "$copy_dir"
 
+# check parameters
+parameter_check
+
 # start monitoring
 monitord
 
 # TO DO
-# update header text
 # Dockerise
 # add docker secrets to github repository
 # email if docker container is not running/cannot restart
