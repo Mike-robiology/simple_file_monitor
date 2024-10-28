@@ -19,6 +19,6 @@ jobs:
         uses: docker/build-push-action@v5.3.0
         with:
           context: .
-          file: conf/Dockerfile
+          file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/map_file_monitor:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/simple_file_monitor:latest
