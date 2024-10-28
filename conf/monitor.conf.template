@@ -1,0 +1,22 @@
+##### ----- program config ----- #####
+handshake_dir=    # Directory used to check connection                            
+check_interval=   # Time between checks                                           
+periodic_check=   # Number of checks before periodic connection check is triggered
+email_recipients= # Email recipients                                              
+email_source=     # Email source address (use college email)                      
+copy_dir=         # Directory to copy reports and summaries to (optional)         
+monitor_file=     # File containing directories to monitor
+
+##### ----- email text ----- #####
+connection_test_subject="DATA_MONITOR - Connection test" # Subject line for connection test email
+connection_test_body="connection: "                      # Body of connection test email         
+data_loss_subject="DATA_MONITOR - Data loss"             # Subject line for data loss email      
+data_loss_body="Data loss detected."                     # Body of data loss email               
+startup_subject="DATA_MONITOR - Monitor started"         # Subject line for start email          
+startup_body="Monitor started."                          # Body of start email
+
+##### ----- email server ----- #####
+mailhub=             # Email server
+rewriteDomain=       # Domain      
+hostname=            # Hostname    
+FromLineOverride=YES

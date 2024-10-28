@@ -14,6 +14,7 @@
 # - read_state: Loads monitored directories and previous state from a file.
 # - startup: Initializes the monitoring process and triggers a startup alert.
 # - monitord: Directory monitor daemon, runs the monitoring process.
+# - parameter_check: Checks if required parameters are present in the configuration file.
 
 # Main:
 # - Sets up logging.
@@ -192,9 +193,9 @@ startup () {
 
 # monitor directories
 monitord () {
-    printf "[%s] %s\n" "$(date)" "monitor running"
     # initialise
     startup
+    printf "[%s] %s\n\n" "$(date)" "monitor deamon running"
 
     # monitor
     while true; do  
@@ -205,37 +206,55 @@ monitord () {
         # check RDS connection
         connection_test
 
-        # generate chsum & record file status
-        for dir in "${dirs[@]}"; do
-            status=$(find "$dir" -not -path "*/.*" -type f -exec stat {} \;)
-            stat2[$dir]=$status
-            chsum2[$dir]=$(echo "$status" | grep File | sed "s/ //g")
-        done
+        if [[ "$connection" == "ACTIVE" ]]; then
 
-        # check for changes
-        if [[ ${chsum1[*]} != "${chsum2[*]}" ]]; then
-            if [[ ${#chsum1[@]} != 0 ]]; then
-                printf "[%s] %s\n" "$(date)" "change detected"
-                check
+            # generate chsum & record file status
+            for dir in "${dirs[@]}"; do
+                status=$(find "$dir" -not -path "*/.*" -type f -exec stat {} \;)
+                stat2[$dir]=$status
+                chsum2[$dir]=$(echo "$status" | grep File | sed "s/ //g")
+            done
+
+            # check for changes
+            if [[ ${chsum1[*]} != "${chsum2[*]}" ]]; then
+                if [[ ${#chsum1[@]} != 0 ]]; then
+                    printf "[%s] %s\n" "$(date)" "change detected"
+                    check
+                fi
             fi
-        fi
 
-        # copy output if specified
-        if [[ $copy_dir != "" ]]; then
-            cp -ru reports "$copy_dir"
-            cp -ru latest "$copy_dir"
-            cp -ru log "$copy_dir"
-        fi
+            # copy output if specified
+            if [[ $copy_dir != "" ]]; then
+                cp -ru reports "$copy_dir"
+                cp -ru latest "$copy_dir"
+                cp -ru log "$copy_dir"
+            fi
 
-        # update state
-        rearray chsum2 chsum1
-        rearray stat2 stat1
-        write_state
+            # update state
+            rearray chsum2 chsum1
+            rearray stat2 stat1
+            write_state
+
+        else
+            printf "[%s] %s\n" "$(date)" "skipping check cycle until connection is restored"
+        fi
 
         sleep $check_interval
     done
 }
 
+# generate ssmtp config
+generate_ssmtp_config () {
+    printf "%s\n" \
+    "root=$email_source"  \
+    "mailhub=$mailhub" \
+    "rewriteDomain=$rewriteDomain" \
+    "hostname=$hostname" \
+    "FromLineOverride=YES" \
+    > /etc/ssmtp/ssmtp.conf
+}
+
+# check parameters
 parameter_check () {
     # check required parameters are present in conf/monitor.conf
     if [[ -z "$email_recipients" || -z "$email_source" || -z "$monitor_file" || -z "$handshake_dir" || -z "$check_interval" || -z "$periodic_check" ]]; then
@@ -243,6 +262,7 @@ parameter_check () {
         exit 1
     fi
 }
+
 
 #### main ####
 
@@ -262,10 +282,13 @@ source conf/monitor.conf
 # create directories
 mkdir -p reports
 mkdir -p latest
-mkdir -p "$copy_dir"
+mkdir "$copy_dir"
 
 # check parameters
 parameter_check
+
+#generate_ssmtp_config
+generate_ssmtp_config
 
 # start monitoring
 monitord

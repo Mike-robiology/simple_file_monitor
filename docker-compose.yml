@@ -1,0 +1,23 @@
+services:
+  rds-monitord:
+    container_name: rds-monitord
+    #image: mikerobiology/simple_file_monitor:latest
+    build: .
+    ports:
+      - 25:25
+    volumes:
+      - ./log:/monitord/log
+      - ./latest:/monitord/latest
+      - ./reports:/monitord/reports
+      - type: bind
+        source: ./conf
+        target: /monitord/conf
+      - type: bind
+        source: /
+        target: /mount
+
+volumes:
+  log:
+  latest:
+  reports:
+  

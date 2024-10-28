@@ -1,5 +1,7 @@
 conf/directories.txt
-conf/monitor.config
+conf/monitor.conf
 latest/
 reports/
 log/
+rdsmount/
+.env
