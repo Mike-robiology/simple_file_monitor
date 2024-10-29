@@ -1,8 +1,8 @@
 services:
   rds-monitord:
     container_name: rds-monitord
-    #image: mikerobiology/simple_file_monitor:latest
-    build: .
+    image: mikerobiology/simple_file_monitor:latest
+    #build: .
     ports:
       - 25:25
     volumes:

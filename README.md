@@ -60,3 +60,7 @@ This will mount the RDS into the simple_file_monitor/rdsmount directory.
 ## Known issues:
 - Not yet able to mount network drives directly into the container.
 - Container has to be restarted to monitor new directories.
+- Unable to resolve UIDs of users on the RDS (limitation)
+- Log is copied to copy_dir before the check cycle has completed, causeing a truncated log to be copied.
+- Could be more efficient in memory (e.g. remove redundant environmental variables)
+- State file is large, could be optimised

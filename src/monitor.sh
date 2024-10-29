@@ -292,8 +292,3 @@ generate_ssmtp_config
 
 # start monitoring
 monitord
-
-# TO DO
-# Dockerise
-# add docker secrets to github repository
-# email if docker container is not running/cannot restart
