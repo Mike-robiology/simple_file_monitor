@@ -221,7 +221,14 @@ monitord () {
                     printf "[%s] %s\n" "$(date)" "change detected"
                     check
                 fi
+            else
+                printf "[%s] %s\n" "$(date)" "no change detected"
             fi
+
+            # update state
+            rearray chsum2 chsum1
+            rearray stat2 stat1
+            write_state
 
             # copy output if specified
             if [[ $copy_dir != "" ]]; then
@@ -229,11 +236,6 @@ monitord () {
                 cp -ru latest "$copy_dir"
                 cp -ru log "$copy_dir"
             fi
-
-            # update state
-            rearray chsum2 chsum1
-            rearray stat2 stat1
-            write_state
 
         else
             printf "[%s] %s\n" "$(date)" "skipping check cycle until connection is restored"
